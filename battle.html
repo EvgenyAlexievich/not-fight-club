@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home page</title>
+    <title>Battle page</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
     <header>
-        <div class="left-wrapper">Home</div>
+        <div class="left-wrapper">Battle</div>
         <div class="right-wrapper">
             <img class="icon-container goHome" src="assets/img/icons8-храм-96.svg" alt="icon">
             <img class="icon-container goChar" src="assets/img/icons8-ниндзя-96.svg" alt="icon">
@@ -21,10 +21,74 @@
                 <div class="char-container">
                     <div class="char-name"></div>
                     <img class="charAvatarImg" src="assets/img/avatar1.jpg" alt="Liu">
-                    <div class=""></div>
+                    <div class="char-progress-container">
+                        <progress></progress>
+                        <p></p>
+                    </div>
                 </div>
-                <div></div>
-                <div></div>
+                <div class="battle-controls">
+                    <p>Please pick 1 Attack zone and 2 Defence zones</p>
+                    <div class="zones-picker">
+                        <div class="atack-zones">
+                            <p>Attack Zones</p>
+                            <div class="radio-container">
+                                <label class="radio-label" for="radio">Head</label>
+                                <input class="radio-input" type="radio">
+                            </div>
+                            <div class="radio-container">
+                                <label class="radio-label" for="radio">Neck</label>
+                                <input class="radio-input" type="radio">
+                            </div>
+                            <div class="radio-container">
+                                <label class="radio-label" for="radio">Body</label>
+                                <input class="radio-input" type="radio">
+                            </div>
+                            <div class="radio-container">
+                                <label class="radio-label" for="radio">Belly</label>
+                                <input class="radio-input" type="radio">
+                            </div>
+                            <div class="radio-container">
+                                <label class="radio-label" for="radio">Legs</label>
+                                <input class="radio-input" type="radio">
+                            </div>
+                        </div>
+                        <div class="line"></div>
+                        <div class="defence zones">
+                            <p>Defence Zones</p>
+                            <div class="radio-container">
+                                <input class="radio-input" type="radio">
+                                <label class="radio-label" for="radio">Head</label>
+                            </div>
+                            <div class="radio-container">
+                                <input class="radio-input" type="radio">
+                                <label class="radio-label" for="radio">Neck</label>
+                            </div>
+                            <div class="radio-container">
+                                <input class="radio-input" type="radio">
+                                <label class="radio-label" for="radio">Body</label>
+                            </div>
+                            <div class="radio-container">
+                                <input class="radio-input" type="radio">
+                                <label class="radio-label" for="radio">Belly</label>
+                            </div>
+                            <div class="radio-container">
+                                <input class="radio-input" type="radio">
+                                <label class="radio-label" for="radio">Legs</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="ButtonContainer">Attack</button>
+                </div>
+                <div>
+                    <div class="char-container">
+                        <div class="enemy-name">SubZero</div>
+                        <img class="enemyAvatarImg" src="assets/img/enemy1.jpg" alt="Liu">
+                        <div class="enemy-progress-container">
+                            <progress></progress>
+                            <p></p>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="logs-wrapper"></div>
         </div>

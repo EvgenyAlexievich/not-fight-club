@@ -106,6 +106,9 @@ header {
     width: 100%;
     justify-content: space-between;
     font-size: 27px;
+    border-bottom-style: solid;
+    align-items: center;
+    margin-bottom: 50px;
 }
 
 .icon-container {
@@ -166,4 +169,39 @@ main {
 .score {
     display: flex;
     flex-direction: column;
+}
+
+.battle-container {
+    width: 100%;
+    color:white;
+    font-size: 35px;
+}
+
+.battle-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.battle-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.zones-picker {
+    display: flex;
+    gap: 1rem;
+}
+
+.radio-input {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.line {
+    width: 1px;
+    background-color: white;
 }

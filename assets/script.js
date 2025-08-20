@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             localStorage.setItem('selectedAvatar', selectedImg.getAttribute('src'));
             localStorage.setItem('selectedAvatarName', selectedImg.getAttribute('alt'));
-            updateAvatarDisplay(selectedImg.getAttribute('src'));
         }
         
         avatarImages.forEach(img => {
