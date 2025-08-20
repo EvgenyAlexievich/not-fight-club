@@ -1,0 +1,169 @@
+@font-face {
+    font-family: 'Kombat11-Regular';
+    src: url('fonts/Kombat11-Regular.ttf');
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Kombat11-Regular', sans-serif;
+}
+
+body {
+    color: black;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/assets/img/igra-mortal-kombat-mortal-combat-metall-chernyi-fon.webp');
+    background-position: center;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+}
+
+.StartContainer {
+    position: relative;
+    top: 50%;
+    left: 41.5%;
+    background-color: rgba(30, 30, 30, 0.9);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(255, 50, 50, 0.3);
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.RegStartTitle {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.inputStartContainer {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.regInputLabel {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.regInputField, .text-field-input {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #333;
+    border: 2px solid #444;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+
+.ButtonContainer {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: white;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.ButtonContainer:active:not(.disabled) {
+    transform: translateY(0);
+}
+
+.disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+header {
+    display: flex;
+    box-sizing: border-box;
+    color: white;
+    flex-shrink: 0;
+    height: 7rem;
+    width: 100%;
+    justify-content: space-between;
+    font-size: 27px;
+}
+
+.icon-container {
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
+    filter: brightness(0) invert(1);
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fight-button {
+    position: relative;
+    width: 200px;
+    margin-bottom: 300px;
+}
+
+.settings-container {
+    color: white;
+}
+
+
+.char-avatar {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.char-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.char-avatar img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 50, 50, 0.4);
+}
+
+.char-avatar img.selected {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 50, 50, 0.7);
+    border: 3px solid #4CAF50;
+}
+
+.char-data {
+    font-size: 35px;
+    color: white;
+}
+
+.score {
+    display: flex;
+    flex-direction: column;
+}
