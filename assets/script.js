@@ -1,4 +1,150 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const battleLogs = {
+        logsWrapper: document.querySelector('.logs-wrapper'),
+        fullBattleLog: [],
+        
+        styles: {
+            player: 'color: #4CAF50; font-weight: bold;',
+            enemy: 'color: #F44336; font-weight: bold;',
+            critical: 'color: #FF9800; font-weight: bold;',
+            blocked: 'color: #9E9E9E; font-style: italic;',
+            zone: 'color: #2196F3; font-weight: bold;',
+            damage: 'color: #E91E63; font-weight: bold;',
+            heal: 'color: #4CAF50; font-weight: bold;'
+        },
+        
+        addLog: function(message, isImportant = false) {
+            if (!this.logsWrapper) return;
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${isImportant ? 'important' : ''}`;
+            logEntry.innerHTML = message;
+            
+            this.logsWrapper.appendChild(logEntry);
+            this.logsWrapper.scrollTop = this.logsWrapper.scrollHeight;
+            
+            this.fullBattleLog.push({
+                message: message,
+                isImportant: isImportant,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            this.saveLogs();
+        },
+        
+        clearLogs: function() {
+            if (this.logsWrapper) {
+                this.logsWrapper.innerHTML = '';
+            }
+        },
+        
+        clearFullLog: function() {
+            this.fullBattleLog = [];
+        },
+        
+        formatText: function(text, styleType) {
+            return `<span style="${this.styles[styleType]}">${text}</span>`;
+        },
+        
+        logAttackResult: function(attacker, target, zone, damage, isCritical = false, isBlocked = false) {
+            const attackerName = this.formatText(attacker.name, attacker.isPlayer ? 'player' : 'enemy');
+            const targetName = this.formatText(target.name, target.isPlayer ? 'player' : 'enemy');
+            const zoneName = this.formatText(zone, 'zone');
+            const damageText = this.formatText(damage, 'damage');
+            
+            let message = '';
+            
+            if (isBlocked && !isCritical) {
+                message = `🛡️${attackerName} атаковал ${targetName} в ${zoneName}, но удар заблокирован!`;
+            } else if (isBlocked && isCritical) {
+                message = `💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName} и пробивает защиту! Нанесено ${damageText} урона!`;
+            } else if (isCritical) {
+                message = `💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName}! Нанесено ${damageText} урона!`;
+            } else if (damage > 0) {
+                message = `${attackerName} атакует ${targetName} в ${zoneName}. Нанесено ${damageText} урона`;
+            } else {
+                message = `${attackerName} промахивается по ${targetName}`;
+            }
+            
+            this.addLog(message, isCritical);
+        },
+        
+        logBattleStart: function(player, enemy) {
+            this.addLog(`⚔️ Бой начинается: ${this.formatText(player.name, 'player')} vs ${this.formatText(enemy.name, 'enemy')}`, true);
+        },
+        
+        logZoneSelection: function(character, attackZones, defenseZones) {
+            const characterName = this.formatText(character.name, character.isPlayer ? 'player' : 'enemy');
+            const attackText = attackZones.length > 0 ? 
+                `атакует в ${attackZones.map(zone => this.formatText(zone, 'zone')).join(', ')}` : 
+                'не атакует';
+            const defenseText = defenseZones.length > 0 ? 
+                `защищает ${defenseZones.map(zone => this.formatText(zone, 'zone')).join(', ')}` : 
+                'не защищается';
+            
+            this.addLog(`${characterName} ${attackText} и ${defenseText}`);
+        },
+        
+        logRoundSummary: function(playerDamage, enemyDamage, player, enemy) {
+            const playerDmg = this.formatText(playerDamage, 'damage');
+            const enemyDmg = this.formatText(enemyDamage, 'damage');
+            
+            this.addLog(`Итог раунда: ${this.formatText(player.name, 'player')} нанес ${playerDmg} урона, ${this.formatText(enemy.name, 'enemy')} нанес ${enemyDmg} урона`, true);
+        },
+        
+        logHealthStatus: function(character) {
+            const characterName = this.formatText(character.name, character.isPlayer ? 'player' : 'enemy');
+            const healthPercent = (character.currentHealth / character.maxHealth) * 100;
+            let healthColor = '#4CAF50';
+            
+            if (healthPercent < 25) healthColor = '#F44336';
+            else if (healthPercent < 50) healthColor = '#FF9800';
+            
+            this.addLog(`${characterName}: ${character.currentHealth}/${character.maxHealth} HP <span style="color: ${healthColor}; font-weight: bold;">(${Math.round(healthPercent)}%)</span>`);
+        },
+        
+        logBattleEnd: function(winner, loser) {
+            const winnerName = this.formatText(winner.name, winner.isPlayer ? 'player' : 'enemy');
+            const loserName = this.formatText(loser.name, loser.isPlayer ? 'player' : 'enemy');
+            this.addLog(`${winnerName} побеждает ${loserName} в бою!`, true);
+        },
+        
+        saveLogs: function() {
+            localStorage.setItem('battleLogs', JSON.stringify(this.fullBattleLog));
+        },
+        
+        loadLogs: function() {
+            const savedLogs = localStorage.getItem('battleLogs');
+            if (savedLogs) {
+                this.fullBattleLog = JSON.parse(savedLogs);
+                this.renderSavedLogs();
+                return true;
+            }
+            return false;
+        },
+        
+        renderSavedLogs: function() {
+            if (!this.logsWrapper) return;
+            
+            this.clearLogs();
+            this.fullBattleLog.forEach(log => {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${log.isImportant ? 'important' : ''}`;
+                logEntry.innerHTML = log.message;
+                
+                this.logsWrapper.appendChild(logEntry);
+            });
+            
+            this.logsWrapper.scrollTop = this.logsWrapper.scrollHeight;
+        },
+        
+        clearSavedLogs: function() {
+            localStorage.removeItem('battleLogs');
+            this.clearLogs();
+            this.clearFullLog();
+        }
+    };
+
     const regButton = document.querySelector('.RegButton');
     const regInputField = document.querySelector('.regInputField');
     const homeIconButton = document.querySelector('.goHome');
@@ -19,8 +165,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const enemyProgress = document.querySelector('.enemy-progress');
     const enemyHealth = document.querySelector('.enemy-health');
     const attackButton = document.querySelector('.ButtonContainer');
-    const attackRadios = document.querySelectorAll('.atack-zones .radio-input');
-    const defenceRadios = document.querySelectorAll('.defence .radio-input');
+    const attackRadios = document.querySelectorAll('.attack-zones .radio-input');
+    const defenseRadios = document.querySelectorAll('.defense .radio-input');
 
     let wins = parseInt(localStorage.getItem('wins')) || 0;
     let loses = parseInt(localStorage.getItem('loses')) || 0;
@@ -46,12 +192,14 @@ document.addEventListener('DOMContentLoaded', function() {
         saveScore();
         updateScoreDisplay();
     }
-    
+
     if (regButton && regInputField) {
         regButton.addEventListener('click', function() {
             const fighterName = regInputField.value.trim();
             if (fighterName) {
                 localStorage.setItem('fighterName', fighterName);
+                localStorage.removeItem('battleState');
+                localStorage.removeItem('battleLogs');
                 alert(`Имя "${fighterName}" успешно сохранено!`);
                 regInputField.value = '';
                 window.location.href = 'home.html';
@@ -81,6 +229,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (fightButton) {
         fightButton.addEventListener('click', function(){
+            localStorage.removeItem('battleState');
+            localStorage.removeItem('battleLogs');
             window.location.href = 'battle.html';
         });
     }
@@ -161,6 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
             damage: 20,
             critChance: 0.2,
             critMultiplier: 1.5,
+            isPlayer: true,
             getHealthPercent: function() {
                 return (this.currentHealth / this.maxHealth) * 100;
             }
@@ -174,37 +325,55 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentHealth: 120,
                 damage: 18,
                 attackZones: 1,
-                defenceZones: 2,
+                defenseZones: 2,
                 critChance: 0.15,
                 critMultiplier: 1.4,
+                isPlayer: false,
                 getHealthPercent: function() {
                     return (this.currentHealth / this.maxHealth) * 100;
                 }
             },
             {
-                name: "Spider",
+                name: "Scorpion",
                 avatar: "assets/img/enemy2.jpg", 
                 maxHealth: 100,
                 currentHealth: 100,
                 damage: 15,
                 attackZones: 2,
-                defenceZones: 1,
+                defenseZones: 1,
                 critChance: 0.25,
                 critMultiplier: 1.6,
+                isPlayer: false,
                 getHealthPercent: function() {
                     return (this.currentHealth / this.maxHealth) * 100;
                 }
             },
             {
-                name: "Troll",
+                name: "ShaoKan",
                 avatar: "assets/img/enemy3.jpg",
                 maxHealth: 200,
                 currentHealth: 200,
                 damage: 25,
                 attackZones: 1,
-                defenceZones: 3,
+                defenseZones: 3,
                 critChance: 0.1,
                 critMultiplier: 1.8,
+                isPlayer: false,
+                getHealthPercent: function() {
+                    return (this.currentHealth / this.maxHealth) * 100;
+                }
+            },
+            {
+                name: "Goro",
+                avatar: "assets/img/enemy5.jpg",
+                maxHealth: 300,
+                currentHealth: 300,
+                damage: 25,
+                attackZones: 4,
+                defenseZones: 0,
+                critChance: 0.1,
+                critMultiplier: 1.8,
+                isPlayer: false,
                 getHealthPercent: function() {
                     return (this.currentHealth / this.maxHealth) * 100;
                 }
@@ -214,21 +383,71 @@ document.addEventListener('DOMContentLoaded', function() {
         let currentEnemyIndex = 0;
         let currentEnemy = {...enemies[currentEnemyIndex]};
 
+        function saveBattleState() {
+            const battleState = {
+                player: {
+                    currentHealth: player.currentHealth
+                },
+                enemy: {
+                    currentHealth: currentEnemy.currentHealth,
+                    index: currentEnemyIndex
+                },
+                timestamp: new Date().getTime()
+            };
+            
+            localStorage.setItem('battleState', JSON.stringify(battleState));
+        }
+
+        function loadBattleState() {
+            const savedState = localStorage.getItem('battleState');
+            if (savedState) {
+                const battleState = JSON.parse(savedState);
+                
+                const oneHour = 60 * 60 * 1000;
+                if (new Date().getTime() - battleState.timestamp < oneHour) {
+                    player.currentHealth = battleState.player.currentHealth;
+                    currentEnemyIndex = battleState.enemy.index;
+                    currentEnemy = {...enemies[currentEnemyIndex]};
+                    currentEnemy.currentHealth = battleState.enemy.currentHealth;
+                    
+                    return true;
+                } else {
+                    localStorage.removeItem('battleState');
+                    localStorage.removeItem('battleLogs');
+                }
+            }
+            return false;
+        }
+
         function initGame() {
+            const hasSavedState = loadBattleState();
+            const hasSavedLogs = battleLogs.loadLogs();
+            
+            if (!hasSavedState) {
+                battleLogs.clearLogs();
+                battleLogs.clearFullLog();
+                battleLogs.logBattleStart(player, currentEnemy);
+            }
+            
             updateHealthDisplay();
             updateEnemyHealthDisplay();
             
             if (enemyName) enemyName.textContent = currentEnemy.name;
             if (enemyAvatarImg) enemyAvatarImg.src = currentEnemy.avatar;
             
+            if (!hasSavedState) {
+                battleLogs.logHealthStatus(player);
+                battleLogs.logHealthStatus(currentEnemy);
+            }
+            
             initRadioButtons();
+        
+            saveBattleState();
         }
 
         function initRadioButtons() {
-            attackRadios.forEach(radio => radio.checked = false);
-            defenceRadios.forEach(radio => radio.checked = false);
-
             attackRadios.forEach(radio => {
+                radio.checked = false;
                 radio.addEventListener('change', function() {
                     if (this.checked) {
                         attackRadios.forEach(r => {
@@ -239,10 +458,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
-            defenceRadios.forEach(radio => {
+            defenseRadios.forEach(radio => {
+                radio.checked = false;
                 radio.addEventListener('change', function() {
-                    const selectedDefence = document.querySelectorAll('.defence .radio-input:checked');
-                    if (selectedDefence.length > 2) {
+                    const selectedDefense = document.querySelectorAll('.defense .radio-input:checked');
+                    if (selectedDefense.length > 2) {
                         this.checked = false;
                     }
                     updateAttackButton();
@@ -253,10 +473,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function updateAttackButton() {
-            const selectedAttack = document.querySelectorAll('.atack-zones .radio-input:checked');
-            const selectedDefence = document.querySelectorAll('.defence .radio-input:checked');
+            const selectedAttack = document.querySelectorAll('.attack-zones .radio-input:checked');
+            const selectedDefense = document.querySelectorAll('.defense .radio-input:checked');
             
-            if (selectedAttack.length === 1 && selectedDefence.length === 2) {
+            if (selectedAttack.length === 1 && selectedDefense.length === 2) {
                 attackButton.disabled = false;
                 attackButton.style.opacity = '1';
                 attackButton.style.cursor = 'pointer';
@@ -273,9 +493,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 charProgress.max = player.maxHealth;
                 charHealth.textContent = `${player.currentHealth}/${player.maxHealth}`;
                 
-                if (player.getHealthPercent() < 25) {
+                const healthPercent = player.getHealthPercent();
+                if (healthPercent < 25) {
                     charProgress.style.accentColor = '#ff4444';
-                } else if (player.getHealthPercent() < 50) {
+                } else if (healthPercent < 50) {
                     charProgress.style.accentColor = '#ffaa00';
                 } else {
                     charProgress.style.accentColor = '#4CAF50';
@@ -289,9 +510,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 enemyProgress.max = currentEnemy.maxHealth;
                 enemyHealth.textContent = `${currentEnemy.currentHealth}/${currentEnemy.maxHealth}`;
                 
-                if (currentEnemy.getHealthPercent() < 25) {
+                const healthPercent = currentEnemy.getHealthPercent();
+                if (healthPercent < 25) {
                     enemyProgress.style.accentColor = '#ff4444';
-                } else if (currentEnemy.getHealthPercent() < 50) {
+                } else if (healthPercent < 50) {
                     enemyProgress.style.accentColor = '#ffaa00';
                 } else {
                     enemyProgress.style.accentColor = '#F44336';
@@ -303,13 +525,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (attackButton.disabled) return;
             
             const playerAttackZone = getSelectedZone(attackRadios);
-            const playerDefenceZones = getSelectedZones(defenceRadios);
+            const playerDefenseZones = getSelectedZones(defenseRadios);
             
             const enemyAttackZones = getRandomZones(currentEnemy.attackZones);
-            const enemyDefenceZones = getRandomZones(currentEnemy.defenceZones);
+            const enemyDefenseZones = getRandomZones(currentEnemy.defenseZones);
             
-            const playerDamage = calculateDamage(player, playerAttackZone, enemyDefenceZones);
-            const enemyDamage = calculateDamage(currentEnemy, enemyAttackZones, playerDefenceZones);
+            battleLogs.logZoneSelection({...player, isPlayer: true}, [playerAttackZone], playerDefenseZones);
+            battleLogs.logZoneSelection({...currentEnemy, isPlayer: false}, enemyAttackZones, enemyDefenseZones);
+            
+            battleLogs.addLog('==========НАЧАЛО РАУНДА==========', true);
+            
+            const playerDamage = calculateDamage(player, currentEnemy, [playerAttackZone], enemyDefenseZones);
+            const enemyDamage = calculateDamage(currentEnemy, player, enemyAttackZones, playerDefenseZones);
+            
+            battleLogs.logRoundSummary(playerDamage, enemyDamage, player, currentEnemy);
+            battleLogs.addLog('==========КОНЕЦ РАУНДА==========', true);
             
             applyDamage(player, enemyDamage);
             applyDamage(currentEnemy, playerDamage);
@@ -317,11 +547,13 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHealthDisplay();
             updateEnemyHealthDisplay();
             
+            saveBattleState();
+            
             checkGameEnd();
             
             setTimeout(() => {
                 attackRadios.forEach(radio => radio.checked = false);
-                defenceRadios.forEach(radio => radio.checked = false);
+                defenseRadios.forEach(radio => radio.checked = false);
                 updateAttackButton();
             }, 1000);
         });
@@ -351,28 +583,30 @@ document.addEventListener('DOMContentLoaded', function() {
             return result;
         }
 
-        function calculateDamage(attacker, attackZones, defenceZones) {
+        function calculateDamage(attacker, target, attackZones, defenseZones) {
             let totalDamage = 0;
-            const attackArray = Array.isArray(attackZones) ? attackZones : [attackZones];
             
-            for (const attackZone of attackArray) {
-                const isBlocked = defenceZones.includes(attackZone);
+            for (const attackZone of attackZones) {
+                const isBlocked = defenseZones.includes(attackZone);
                 const isCrit = Math.random() < attacker.critChance;
                 
                 let damage = attacker.damage;
                 if (isCrit) {
                     damage *= attacker.critMultiplier;
-                    console.log(`⚡ КРИТИЧЕСКИЙ УДАР! ${attacker.name} бьет в ${attackZone}`);
                 }
                 
                 if (isBlocked && !isCrit) {
-                    console.log(`🛡️ ${attacker.name} атаковал в ${attackZone}, но защита сработала!`);
                     damage = 0;
-                } else if (isBlocked && isCrit) {
-                    console.log(`💥 КРИТ пробил защиту ${attackZone}!`);
-                } else if (!isBlocked) {
-                    console.log(`🎯 ${attacker.name} попал в ${attackZone} на ${damage} урона!`);
                 }
+                
+                battleLogs.logAttackResult(
+                    {...attacker, isPlayer: attacker === player},
+                    {...target, isPlayer: target === player},
+                    attackZone,
+                    Math.round(damage),
+                    isCrit,
+                    isBlocked && !isCrit
+                );
                 
                 totalDamage += damage;
             }
@@ -381,23 +615,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function applyDamage(target, damage) {
+            const oldHealth = target.currentHealth;
             target.currentHealth = Math.max(0, target.currentHealth - damage);
-            console.log(`❤️ ${target.name} получил ${damage} урона. Осталось HP: ${target.currentHealth}`);
+            
+            if (damage > 0) {
+                battleLogs.logHealthStatus({...target, isPlayer: target === player});
+            }
         }
 
         function checkGameEnd() {
             if (player.currentHealth <= 0) {
                 setTimeout(() => {
-                    alert("Вы проиграли! 😢");
+                    battleLogs.logBattleEnd(currentEnemy, player);
+                    alert("WASTED!!!");
                     addLose();
+                    localStorage.removeItem('battleState');
+                    localStorage.removeItem('battleLogs');
                     resetBattle();
-                }, 500);
+                }, 1000);
             } else if (currentEnemy.currentHealth <= 0) {
                 setTimeout(() => {
-                    alert("Вы победили! 🎉");
+                    battleLogs.logBattleEnd(player, currentEnemy);
+                    alert("YOU WIN!!!");
                     addWin();
+                    localStorage.removeItem('battleState');
+                    localStorage.removeItem('battleLogs');
                     nextEnemy();
-                }, 500);
+                }, 1000);
             }
         }
 
@@ -406,6 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentEnemy = {...enemies[currentEnemyIndex]};
             resetBattle();
         }
+
         function resetBattle() {
             player.currentHealth = player.maxHealth;
             currentEnemy.currentHealth = currentEnemy.maxHealth;
@@ -414,7 +659,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (enemyName) enemyName.textContent = currentEnemy.name;
             if (enemyAvatarImg) enemyAvatarImg.src = currentEnemy.avatar;
+            
+            battleLogs.clearLogs();
+            battleLogs.clearFullLog();
+            battleLogs.logBattleStart(player, currentEnemy);
+            battleLogs.logHealthStatus(player);
+            battleLogs.logHealthStatus(currentEnemy);
+            
+            saveBattleState();
         }
+
+        window.addEventListener('beforeunload', function() {
+            saveBattleState();
+        });
+
         initGame();
     }
 });

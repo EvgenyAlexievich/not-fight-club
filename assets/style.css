@@ -195,9 +195,22 @@ main {
     gap: 1rem;
 }
 
+.attack-zones .radio-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.defense-zones .radio-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
 .radio-input {
     width: 30px;
     height: 30px;
+    margin: 10px;
     cursor: pointer;
 }
 
@@ -213,18 +226,17 @@ main {
 }
 
 .char-progress::-webkit-progress-value {
-    background: linear-gradient(90deg, #4CAF50, #8BC34A);
-    border-radius: 10px;
+    background: #4CAF50;
 }
 
 .enemy-progress::-webkit-progress-value {
-    background: linear-gradient(90deg, #F44336, #FF9800);
-    border-radius: 10px;
+    background: #F44336;
 }
 
 .ButtonContainer:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+
 }
 
 .ButtonContainer {
@@ -234,4 +246,55 @@ main {
 .ButtonContainer:hover:not(:disabled) {
     transform: scale(1.05);
     background-color: #F44336;
+}
+
+.logs-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 2px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 5px;
+    background: #FAFAFA;
+    margin: 5px 0;
+    color: black;
+    font-size: 20px;
+}
+
+.log-entry {
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 4px;
+    background: #F5F5F5;
+    border-left: 2px solid #E0E0E0;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.log-entry.important {
+    background: #FFF3E0;
+    border-left: 4px solid #FF9800;
+    font-weight: bold;
+}
+
+.log-entry:hover {
+    background: #EDEDED;
+    transform: translateX(2px);
+}
+
+.logs-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.logs-wrapper::-webkit-scrollbar-track {
+    background: #F5F5F5;
+    border-radius: 3px;
+}
+
+.logs-wrapper::-webkit-scrollbar-thumb {
+    background: #BDBDBD;
+    border-radius: 3px;
+}
+
+.logs-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #9E9E9E;
 }
