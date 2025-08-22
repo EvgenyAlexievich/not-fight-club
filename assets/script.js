@@ -1,4 +1,162 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const regButton = document.querySelector('.RegButton');
+    const regInputField = document.querySelector('.regInputField');
+    const homeIconButton = document.querySelector('.goHome');
+    const charIconButton = document.querySelector('.goChar');
+    const sittingsIconButton = document.querySelector('.goSettings');
+    const saveButton = document.querySelector('.save-button');
+    const textFieldInput = document.querySelector('.text-field-input');
+    const charAvatarContainer = document.querySelector('.char-avatar');
+    const fightButton = document.querySelector('.fight-button');
+    const charAvatarImg = document.querySelector('.char-container img');
+    const charName = document.querySelector('.char-name');
+    const winsElement = document.querySelector('.char-data-wins');
+    const losesElement = document.querySelector('.char-data-loses');
+    const charProgress = document.querySelector('.char-progress');
+    const charHealth = document.querySelector('.char-health');
+    const enemyName = document.querySelector('.enemy-name');
+    const enemyAvatarImg = document.querySelector('.enemyAvatarImg');
+    const enemyProgress = document.querySelector('.enemy-progress');
+    const enemyHealth = document.querySelector('.enemy-health');
+    const attackButton = document.querySelector('.ButtonContainer');
+    const attackRadios = document.querySelectorAll('.attack-zones .radio-input');
+    const defenseRadios = document.querySelectorAll('.defense .radio-input');
+
+    if (homeIconButton) {
+        homeIconButton.addEventListener('click', function(){
+            window.location.href = 'home.html';
+        });
+    }
+
+    if (charIconButton) {
+        charIconButton.addEventListener('click', function(){
+            window.location.href = 'character.html';
+        });
+    }
+
+    if (sittingsIconButton) {
+        sittingsIconButton.addEventListener('click', function(){
+            window.location.href = 'settings.html';
+        });
+    }
+
+    if (fightButton) {
+        fightButton.addEventListener('click', function(){
+            localStorage.removeItem('battleState');
+            localStorage.removeItem('battleLogs');
+            window.location.href = 'battle.html';
+        });
+    }
+
+    let wins = parseInt(localStorage.getItem('wins')) || 0;
+    let loses = parseInt(localStorage.getItem('loses')) || 0;
+
+    function updateScoreDisplay() {
+        if (winsElement) winsElement.textContent = `Wins: ${wins}`;
+        if (losesElement) losesElement.textContent = `Loses: ${loses}`;
+    }
+
+    function saveScore() {
+        localStorage.setItem('wins', wins);
+        localStorage.setItem('loses', loses);
+    }
+
+    function addWin() {
+        wins++;
+        saveScore();
+        updateScoreDisplay();
+    }
+
+    function addLose() {
+        loses++;
+        saveScore();
+        updateScoreDisplay();
+    }
+
+    if (regButton && regInputField) {
+        regButton.addEventListener('click', function() {
+            const fighterName = regInputField.value.trim();
+            if (fighterName) {
+                localStorage.setItem('fighterName', fighterName);
+                localStorage.removeItem('battleState');
+                localStorage.removeItem('battleLogs');
+                alert(`Имя "${fighterName}" успешно сохранено!`);
+                regInputField.value = '';
+                window.location.href = 'home.html';
+            } else {
+                alert('Пожалуйста, введите имя бойца!');
+            }
+        });
+    }
+
+    if (saveButton && textFieldInput) {
+        const currentName = localStorage.getItem('fighterName');
+        if (currentName) {
+            textFieldInput.value = currentName;
+            textFieldInput.placeholder = `Текущее имя: ${currentName}`;
+        }
+        
+        saveButton.addEventListener('click', function() {
+            const newName = textFieldInput.value.trim();
+            
+            if (newName) {
+                localStorage.setItem('fighterName', newName);
+                alert(`Имя успешно изменено на "${newName}"!`);
+                textFieldInput.value = '';
+                textFieldInput.placeholder = newName;
+                
+                if (charName) {
+                    charName.textContent = newName;
+                }
+            } else {
+                alert('Пожалуйста, введите новое имя!');
+                textFieldInput.focus();
+            }
+        });
+    }
+
+    if (charAvatarContainer) {
+        const avatarImages = charAvatarContainer.querySelectorAll('img');
+        const savedAvatar = localStorage.getItem('selectedAvatar');
+        
+        function selectAvatar(selectedImg) {
+            avatarImages.forEach(img => img.classList.remove('selected'));
+            selectedImg.classList.add('selected');
+            
+            localStorage.setItem('selectedAvatar', selectedImg.getAttribute('src'));
+            localStorage.setItem('selectedAvatarName', selectedImg.getAttribute('alt'));
+        }
+        
+        avatarImages.forEach(img => {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', function() {
+                selectAvatar(this);
+            });
+        });
+
+        if (savedAvatar) {
+            avatarImages.forEach(img => {
+                if (img.getAttribute('src') === savedAvatar) {
+                    img.classList.add('selected');
+                }
+            });
+        }
+    }
+
+    if (charName) {
+        const currentName = localStorage.getItem('fighterName');
+        charName.textContent = currentName || 'Безымянный воин';
+    }
+
+    if (charAvatarImg) {
+        const savedAvatar = localStorage.getItem('selectedAvatar');
+        if (savedAvatar) {
+            charAvatarImg.src = savedAvatar;
+        }
+    }
+
+    updateScoreDisplay();
+
     const battleLogs = {
         logsWrapper: document.querySelector('.logs-wrapper'),
         fullBattleLog: [],
@@ -144,164 +302,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.clearFullLog();
         }
     };
-
-    const regButton = document.querySelector('.RegButton');
-    const regInputField = document.querySelector('.regInputField');
-    const homeIconButton = document.querySelector('.goHome');
-    const charIconButton = document.querySelector('.goChar');
-    const sittingsIconButton = document.querySelector('.goSettings');
-    const saveButton = document.querySelector('.save-button');
-    const textFieldInput = document.querySelector('.text-field-input');
-    const charAvatarContainer = document.querySelector('.char-avatar');
-    const fightButton = document.querySelector('.fight-button');
-    const charAvatarImg = document.querySelector('.char-container img');
-    const charName = document.querySelector('.char-name');
-    const winsElement = document.querySelector('.char-data-wins');
-    const losesElement = document.querySelector('.char-data-loses');
-    const charProgress = document.querySelector('.char-progress');
-    const charHealth = document.querySelector('.char-health');
-    const enemyName = document.querySelector('.enemy-name');
-    const enemyAvatarImg = document.querySelector('.enemyAvatarImg');
-    const enemyProgress = document.querySelector('.enemy-progress');
-    const enemyHealth = document.querySelector('.enemy-health');
-    const attackButton = document.querySelector('.ButtonContainer');
-    const attackRadios = document.querySelectorAll('.attack-zones .radio-input');
-    const defenseRadios = document.querySelectorAll('.defense .radio-input');
-
-    let wins = parseInt(localStorage.getItem('wins')) || 0;
-    let loses = parseInt(localStorage.getItem('loses')) || 0;
-
-    function updateScoreDisplay() {
-        if (winsElement) winsElement.textContent = `Wins: ${wins}`;
-        if (losesElement) losesElement.textContent = `Loses: ${loses}`;
-    }
-
-    function saveScore() {
-        localStorage.setItem('wins', wins);
-        localStorage.setItem('loses', loses);
-    }
-
-    function addWin() {
-        wins++;
-        saveScore();
-        updateScoreDisplay();
-    }
-
-    function addLose() {
-        loses++;
-        saveScore();
-        updateScoreDisplay();
-    }
-
-    if (regButton && regInputField) {
-        regButton.addEventListener('click', function() {
-            const fighterName = regInputField.value.trim();
-            if (fighterName) {
-                localStorage.setItem('fighterName', fighterName);
-                localStorage.removeItem('battleState');
-                localStorage.removeItem('battleLogs');
-                alert(`Имя "${fighterName}" успешно сохранено!`);
-                regInputField.value = '';
-                window.location.href = 'home.html';
-            } else {
-                alert('Пожалуйста, введите имя бойца!');
-            }
-        });
-    }
-
-    if (homeIconButton) {
-        homeIconButton.addEventListener('click', function(){
-            window.location.href = 'home.html';
-        });
-    }
-
-    if (charIconButton) {
-        charIconButton.addEventListener('click', function(){
-            window.location.href = 'character.html';
-        });
-    }
-
-    if (sittingsIconButton) {
-        sittingsIconButton.addEventListener('click', function(){
-            window.location.href = 'settings.html';
-        });
-    }
-
-    if (fightButton) {
-        fightButton.addEventListener('click', function(){
-            localStorage.removeItem('battleState');
-            localStorage.removeItem('battleLogs');
-            window.location.href = 'battle.html';
-        });
-    }
-
-    if (saveButton && textFieldInput) {
-        const currentName = localStorage.getItem('fighterName');
-        if (currentName) {
-            textFieldInput.value = currentName;
-            textFieldInput.placeholder = `Текущее имя: ${currentName}`;
-        }
-        
-        saveButton.addEventListener('click', function() {
-            const newName = textFieldInput.value.trim();
-            
-            if (newName) {
-                localStorage.setItem('fighterName', newName);
-                alert(`Имя успешно изменено на "${newName}"!`);
-                textFieldInput.value = '';
-                textFieldInput.placeholder = newName;
-                
-                if (charName) {
-                    charName.textContent = newName;
-                }
-            } else {
-                alert('Пожалуйста, введите новое имя!');
-                textFieldInput.focus();
-            }
-        });
-    }
-
-    if (charAvatarContainer) {
-        const avatarImages = charAvatarContainer.querySelectorAll('img');
-        const savedAvatar = localStorage.getItem('selectedAvatar');
-        
-        function selectAvatar(selectedImg) {
-            avatarImages.forEach(img => img.classList.remove('selected'));
-            selectedImg.classList.add('selected');
-            
-            localStorage.setItem('selectedAvatar', selectedImg.getAttribute('src'));
-            localStorage.setItem('selectedAvatarName', selectedImg.getAttribute('alt'));
-        }
-        
-        avatarImages.forEach(img => {
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', function() {
-                selectAvatar(this);
-            });
-        });
-
-        if (savedAvatar) {
-            avatarImages.forEach(img => {
-                if (img.getAttribute('src') === savedAvatar) {
-                    img.classList.add('selected');
-                }
-            });
-        }
-    }
-
-    if (charName) {
-        const currentName = localStorage.getItem('fighterName');
-        charName.textContent = currentName || 'Безымянный воин';
-    }
-
-    if (charAvatarImg) {
-        const savedAvatar = localStorage.getItem('selectedAvatar');
-        if (savedAvatar) {
-            charAvatarImg.src = savedAvatar;
-        }
-    }
-
-    updateScoreDisplay();
 
     if (attackButton && charProgress && enemyProgress) {
         const player = {
@@ -520,6 +520,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
+
 
         attackButton.addEventListener('click', function() {
             if (attackButton.disabled) return;
