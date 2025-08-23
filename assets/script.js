@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (fightButton) {
         fightButton.addEventListener('click', function(){
-            localStorage.removeItem('battleState');
-            localStorage.removeItem('battleLogs');
+            // localStorage.removeItem('battleState');
+            // localStorage.removeItem('battleLogs');
             window.location.href = 'battle.html';
         });
     }
@@ -160,15 +160,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const battleLogs = {
         logsWrapper: document.querySelector('.logs-wrapper'),
         fullBattleLog: [],
-        
         styles: {
-            player: 'color: #4CAF50; font-weight: bold;',
-            enemy: 'color: #F44336; font-weight: bold;',
+            player: 'color: #4CAF50; font-weight: bold; text-decoration-line: underline;',
+            enemy: 'color: #F44336; font-weight: bold; text-decoration-line: underline;',
             critical: 'color: #FF9800; font-weight: bold;',
             blocked: 'color: #9E9E9E; font-style: italic;',
-            zone: 'color: #2196F3; font-weight: bold;',
-            damage: 'color: #E91E63; font-weight: bold;',
-            heal: 'color: #4CAF50; font-weight: bold;'
+            zone: 'color: #FF9800; font-weight: bold;',
         },
         
         addLog: function(message, isImportant = false) {
@@ -213,13 +210,13 @@ document.addEventListener('DOMContentLoaded', function() {
             let message = '';
             
             if (isBlocked && !isCritical) {
-                message = `🛡️${attackerName} атаковал ${targetName} в ${zoneName}, но удар заблокирован!`;
+                message = `👊🛡️${attackerName} атаковал ${targetName} в ${zoneName}, но удар заблокирован!`;
             } else if (isBlocked && isCritical) {
-                message = `💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName} и пробивает защиту! Нанесено ${damageText} урона!`;
+                message = `👊🛡️💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName} и пробивает защиту (Нанесено ${damageText} урона)`;
             } else if (isCritical) {
-                message = `💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName}! Нанесено ${damageText} урона!`;
+                message = `👊💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName} (Нанесено ${damageText} урона)`;
             } else if (damage > 0) {
-                message = `${attackerName} атакует ${targetName} в ${zoneName}. Нанесено ${damageText} урона`;
+                message = `👊${attackerName} атакует ${targetName} в ${zoneName}. Нанесено ${damageText} урона`;
             } else {
                 message = `${attackerName} промахивается по ${targetName}`;
             }
@@ -253,11 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
         logHealthStatus: function(character) {
             const characterName = this.formatText(character.name, character.isPlayer ? 'player' : 'enemy');
             const healthPercent = (character.currentHealth / character.maxHealth) * 100;
-            let healthColor = '#4CAF50';
-            
-            if (healthPercent < 25) healthColor = '#F44336';
-            else if (healthPercent < 50) healthColor = '#FF9800';
-            
+            let healthColor = '#fff';
             this.addLog(`${characterName}: ${character.currentHealth}/${character.maxHealth} HP <span style="color: ${healthColor}; font-weight: bold;">(${Math.round(healthPercent)}%)</span>`);
         },
         
@@ -446,29 +439,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function initRadioButtons() {
-            attackRadios.forEach(radio => {
-                radio.checked = false;
-                radio.addEventListener('change', function() {
-                    if (this.checked) {
-                        attackRadios.forEach(r => {
-                            if (r !== this) r.checked = false;
-                        });
-                    }
-                    updateAttackButton();
-                });
-            });
-
-            defenseRadios.forEach(radio => {
-                radio.checked = false;
-                radio.addEventListener('change', function() {
+            attackRadios.forEach(radio => radio.checked = false);
+            defenseRadios.forEach(radio => radio.checked = false);
+        
+            document.querySelectorAll('input').forEach(function(n) {
+                n.addEventListener('click', this);
+            }, function({ target: t }) {
+                if (t.classList.contains('attack-radio')) {
+                    attackRadios.forEach(r => {
+                        if (r !== t) r.checked = false;
+                    });
+                }
+                
+                if (t.classList.contains('defense-radio')) {
                     const selectedDefense = document.querySelectorAll('.defense .radio-input:checked');
-                    if (selectedDefense.length > 2) {
-                        this.checked = false;
+                    if (selectedDefense.length > 2 && t.checked) {
+                        t.checked = false;
+                        return;
                     }
-                    updateAttackButton();
-                });
-            });
-
+                }
+            
+                t.checked = !!(this[0] = this[0] === t ? null : t);
+                updateAttackButton();
+            }.bind([]));
+        
             updateAttackButton();
         }
 
@@ -492,15 +486,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 charProgress.value = player.currentHealth;
                 charProgress.max = player.maxHealth;
                 charHealth.textContent = `${player.currentHealth}/${player.maxHealth}`;
-                
-                const healthPercent = player.getHealthPercent();
-                if (healthPercent < 25) {
-                    charProgress.style.accentColor = '#ff4444';
-                } else if (healthPercent < 50) {
-                    charProgress.style.accentColor = '#ffaa00';
-                } else {
-                    charProgress.style.accentColor = '#4CAF50';
-                }
             }
         }
 
@@ -509,15 +494,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 enemyProgress.value = currentEnemy.currentHealth;
                 enemyProgress.max = currentEnemy.maxHealth;
                 enemyHealth.textContent = `${currentEnemy.currentHealth}/${currentEnemy.maxHealth}`;
-                
-                const healthPercent = currentEnemy.getHealthPercent();
-                if (healthPercent < 25) {
-                    enemyProgress.style.accentColor = '#ff4444';
-                } else if (healthPercent < 50) {
-                    enemyProgress.style.accentColor = '#ffaa00';
-                } else {
-                    enemyProgress.style.accentColor = '#F44336';
-                }
             }
         }
 
@@ -534,29 +510,26 @@ document.addEventListener('DOMContentLoaded', function() {
             battleLogs.logZoneSelection({...player, isPlayer: true}, [playerAttackZone], playerDefenseZones);
             battleLogs.logZoneSelection({...currentEnemy, isPlayer: false}, enemyAttackZones, enemyDefenseZones);
             
-            battleLogs.addLog('==========НАЧАЛО РАУНДА==========', true);
+            battleLogs.addLog('================================================================================НАЧАЛО РАУНДА================================================================================', true);
             
             const playerDamage = calculateDamage(player, currentEnemy, [playerAttackZone], enemyDefenseZones);
             const enemyDamage = calculateDamage(currentEnemy, player, enemyAttackZones, playerDefenseZones);
             
             battleLogs.logRoundSummary(playerDamage, enemyDamage, player, currentEnemy);
-            battleLogs.addLog('==========КОНЕЦ РАУНДА==========', true);
+            battleLogs.addLog('================================================================================КОНЕЦ РАУНДА================================================================================', true);
             
             applyDamage(player, enemyDamage);
             applyDamage(currentEnemy, playerDamage);
             
             updateHealthDisplay();
-            updateEnemyHealthDisplay();
-            
+            updateEnemyHealthDisplay(); 
             saveBattleState();
-            
             checkGameEnd();
-            
-            setTimeout(() => {
-                attackRadios.forEach(radio => radio.checked = false);
-                defenseRadios.forEach(radio => radio.checked = false);
-                updateAttackButton();
-            }, 1000);
+            // setTimeout(() => {
+            //     attackRadios.forEach(radio => radio.checked = false);
+            //     defenseRadios.forEach(radio => radio.checked = false);
+            //     updateAttackButton();
+            // }, 1000);
         });
 
         function getSelectedZone(radios) {
@@ -661,8 +634,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (enemyName) enemyName.textContent = currentEnemy.name;
             if (enemyAvatarImg) enemyAvatarImg.src = currentEnemy.avatar;
             
-            battleLogs.clearLogs();
-            battleLogs.clearFullLog();
+            // battleLogs.clearLogs();
+            // battleLogs.clearFullLog();
             battleLogs.logBattleStart(player, currentEnemy);
             battleLogs.logHealthStatus(player);
             battleLogs.logHealthStatus(currentEnemy);

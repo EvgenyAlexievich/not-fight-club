@@ -14,7 +14,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/assets/img/igra-mortal-kombat-mortal-combat-metall-chernyi-fon.webp');
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/assets/img/igra-mortal-kombat4.webp');
     background-position: center;
     background-size: cover;
     position: relative;
@@ -216,7 +216,7 @@ main {
 
 .line {
     width: 1px;
-    background-color: white;
+    background-color: #fff;
 }
 
 .char-progress, .enemy-progress {
@@ -254,9 +254,8 @@ main {
     border: 2px solid #E0E0E0;
     border-radius: 8px;
     padding: 5px;
-    background: #FAFAFA;
     margin: 5px 0;
-    color: black;
+    color: white;
     font-size: 20px;
 }
 
@@ -264,21 +263,10 @@ main {
     padding: 8px 12px;
     margin: 4px 0;
     border-radius: 4px;
-    background: #F5F5F5;
+    background: black;
     border-left: 2px solid #E0E0E0;
     font-size: 20px;
     transition: all 0.3s ease;
-}
-
-.log-entry.important {
-    background: #FFF3E0;
-    border-left: 4px solid #FF9800;
-    font-weight: bold;
-}
-
-.log-entry:hover {
-    background: #EDEDED;
-    transform: translateX(2px);
 }
 
 .logs-wrapper::-webkit-scrollbar {
@@ -291,7 +279,7 @@ main {
 }
 
 .logs-wrapper::-webkit-scrollbar-thumb {
-    background: #BDBDBD;
+    background: black;
     border-radius: 3px;
 }
 
