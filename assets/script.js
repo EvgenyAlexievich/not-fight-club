@@ -42,8 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (fightButton) {
         fightButton.addEventListener('click', function(){
-            // localStorage.removeItem('battleState');
-            // localStorage.removeItem('battleLogs');
             window.location.href = 'battle.html';
         });
     }
@@ -201,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return `<span style="${this.styles[styleType]}">${text}</span>`;
         },
         
-        logAttackResult: function(attacker, target, zone, damage, isCritical = false, isBlocked = false) {
+        logAttackResult: function(attacker, target, zone, damage, isCritical = false, isBlocked = false, isCritProbingBlock = false) {
             const attackerName = this.formatText(attacker.name, attacker.isPlayer ? 'player' : 'enemy');
             const targetName = this.formatText(target.name, target.isPlayer ? 'player' : 'enemy');
             const zoneName = this.formatText(zone, 'zone');
@@ -209,10 +207,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             let message = '';
             
-            if (isBlocked && !isCritical) {
-                message = `👊🛡️${attackerName} атаковал ${targetName} в ${zoneName}, но удар заблокирован!`;
-            } else if (isBlocked && isCritical) {
+            if (isCritProbingBlock) {
                 message = `👊🛡️💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName} и пробивает защиту (Нанесено ${damageText} урона)`;
+            } else if (isBlocked && !isCritical) {
+                message = `👊🛡️${attackerName} атаковал ${targetName} в ${zoneName}, но удар заблокирован!`;
             } else if (isCritical) {
                 message = `👊💥${attackerName} наносит КРИТИЧЕСКИЙ удар ${targetName} в ${zoneName} (Нанесено ${damageText} урона)`;
             } else if (damage > 0) {
@@ -302,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
             maxHealth: 150,
             currentHealth: 150,
             damage: 20,
-            critChance: 0.2,
+            critChance: 0.18,
             critMultiplier: 1.5,
             isPlayer: true,
             getHealthPercent: function() {
@@ -316,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 avatar: "assets/img/enemy1.jpg",
                 maxHealth: 120,
                 currentHealth: 120,
-                damage: 18,
+                damage: 15,
                 attackZones: 1,
                 defenseZones: 2,
                 critChance: 0.15,
@@ -329,12 +327,12 @@ document.addEventListener('DOMContentLoaded', function() {
             {
                 name: "Scorpion",
                 avatar: "assets/img/enemy2.jpg", 
-                maxHealth: 100,
-                currentHealth: 100,
+                maxHealth: 150,
+                currentHealth: 150,
                 damage: 15,
                 attackZones: 2,
                 defenseZones: 1,
-                critChance: 0.25,
+                critChance: 0.15,
                 critMultiplier: 1.6,
                 isPlayer: false,
                 getHealthPercent: function() {
@@ -359,13 +357,13 @@ document.addEventListener('DOMContentLoaded', function() {
             {
                 name: "Goro",
                 avatar: "assets/img/enemy5.jpg",
-                maxHealth: 300,
-                currentHealth: 300,
-                damage: 25,
-                attackZones: 4,
-                defenseZones: 0,
-                critChance: 0.1,
-                critMultiplier: 1.8,
+                maxHealth: 250,
+                currentHealth: 250,
+                damage: 20,
+                attackZones: 2,
+                defenseZones: 2,
+                critChance: 0,
+                critMultiplier: 1.5,
                 isPlayer: false,
                 getHealthPercent: function() {
                     return (this.currentHealth / this.maxHealth) * 100;
@@ -525,11 +523,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateEnemyHealthDisplay(); 
             saveBattleState();
             checkGameEnd();
-            // setTimeout(() => {
-            //     attackRadios.forEach(radio => radio.checked = false);
-            //     defenseRadios.forEach(radio => radio.checked = false);
-            //     updateAttackButton();
-            // }, 1000);
         });
 
         function getSelectedZone(radios) {
@@ -573,13 +566,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     damage = 0;
                 }
                 
+                const isBlockedForLog = isBlocked;
+                const isCritProbingBlock = isBlocked && isCrit;
+                
                 battleLogs.logAttackResult(
                     {...attacker, isPlayer: attacker === player},
                     {...target, isPlayer: target === player},
                     attackZone,
                     Math.round(damage),
                     isCrit,
-                    isBlocked && !isCrit
+                    isBlockedForLog,
+                    isCritProbingBlock
                 );
                 
                 totalDamage += damage;
@@ -606,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('battleState');
                     localStorage.removeItem('battleLogs');
                     resetBattle();
-                }, 1000);
+                }, 100);
             } else if (currentEnemy.currentHealth <= 0) {
                 setTimeout(() => {
                     battleLogs.logBattleEnd(player, currentEnemy);
@@ -615,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('battleState');
                     localStorage.removeItem('battleLogs');
                     nextEnemy();
-                }, 1000);
+                }, 100);
             }
         }
 
@@ -634,8 +631,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (enemyName) enemyName.textContent = currentEnemy.name;
             if (enemyAvatarImg) enemyAvatarImg.src = currentEnemy.avatar;
             
-            // battleLogs.clearLogs();
-            // battleLogs.clearFullLog();
             battleLogs.logBattleStart(player, currentEnemy);
             battleLogs.logHealthStatus(player);
             battleLogs.logHealthStatus(currentEnemy);

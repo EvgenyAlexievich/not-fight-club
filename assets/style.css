@@ -62,7 +62,7 @@ body {
     border: 2px solid #444;
     border-radius: 5px;
     color: #fff;
-    font-size: 1rem;
+    font-size: 1.5rem;
     transition: all 0.3s;
 }
 
@@ -74,7 +74,7 @@ body {
     color: black;
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -116,6 +116,12 @@ header {
     height: 70px;
     cursor: pointer;
     filter: brightness(0) invert(1);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.icon-container:hover {
+    filter: invert(28%) sepia(95%) saturate(1352%) hue-rotate(345deg) brightness(96%) contrast(101%);
+    transform: scale(1.1);
 }
 
 main {
@@ -166,9 +172,21 @@ main {
     color: white;
 }
 
+.char-name {
+    color: #4CAF50;
+}
+
+.enemy-name {
+    color:#F44336;
+}
+
 .score {
     display: flex;
     flex-direction: column;
+}
+
+.settings-container {
+    font-size: 30px;
 }
 
 .battle-container {
